@@ -2,9 +2,11 @@
   "name": "downzip",
   "version": "1.0.0",
   "description": "Library to enable client-side code to stream potentially large files into a zipped download",
-  "main": "index.js",
+  "main": "./dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: author is too lazy to write tests\" && exit 1",
+    "build": "npx webpack --mode=production",
+    "build_dev": "npx webpack --mode=development"
   },
   "keywords": [
     "zip",
@@ -14,5 +16,15 @@
     "client"
   ],
   "author": "Robbe Derks",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/polyfill": "^7.6.0",
+    "@babel/preset-env": "^7.6.3",
+    "babel-loader": "^8.0.6",
+    "service-worker-loader": "^3.3.1",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.10"
+  }
 }
