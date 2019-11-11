@@ -4,7 +4,7 @@ const Utils = new WorkerUtils('DownZipServiceWorker')
 
 // ////////// MESSAGE HANDLERS ////////// //
 const initialize = (data) => {
-    Utils.log(`Initialize called: ${data}`)
+    Utils.log(`Initialize called: ${JSON.stringify(data)}`)
 }
 
 // /////////// EVENT HANDLERS /////////// //

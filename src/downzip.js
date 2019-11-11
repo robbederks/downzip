@@ -24,7 +24,8 @@ class DownZip {
         })
     }
 
-    downzip(id, urls){
+    // Files array is in the following format: [{name: '', url: ''}, ...]
+    downzip(id, files){
         // Check if worker got created in the constructor
         if(!this.worker){
             console.error("[DownZip] No service worker registered!")
@@ -32,9 +33,9 @@ class DownZip {
         }
 
         // Init this task in our service worker
-        this.sendMessage('initialize', {
+        this.sendMessage('INITIALIZE', {
             id,
-            urls
+            files
         })
 
         // Return download URL
