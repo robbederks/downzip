@@ -1,6 +1,7 @@
 import registerServiceWorker from 'service-worker-loader!./downzip-sw'
 
 const SCOPE = 'downzip'
+const TIMEOUT_MS = 5000
 
 class DownZip {
     constructor(){
@@ -17,29 +18,36 @@ class DownZip {
         })
     }
 
-    sendMessage(command, data){
+    sendMessage(command, data, port){
         this.worker.postMessage({
             command,
             data
-        })
+        }, [port])
     }
 
     // Files array is in the following format: [{name: '', url: ''}, ...]
-    downzip(id, files){
+    async downzip(id, files){
         // Check if worker got created in the constructor
         if(!this.worker){
             console.error("[DownZip] No service worker registered!")
             return
         }
 
-        // Init this task in our service worker
-        this.sendMessage('INITIALIZE', {
-            id,
-            files
-        })
+        return new Promise(((resolve, reject) => {
+            // Return download URL on acknowledge via messageChannel
+            const messageChannel = new MessageChannel()
+            messageChannel.port1.addEventListener('message', () => resolve(`${SCOPE}/download-${id}`))
+            messageChannel.port1.start()
 
-        // Return download URL
-        return `${SCOPE}/download-${id}`
+            // Init this task in our service worker
+            this.sendMessage('INITIALIZE', {
+                id,
+                files
+            }, messageChannel.port2)
+
+            // Start timeout timer
+            setTimeout(reject, TIMEOUT_MS)
+        }))
     }
 }
 

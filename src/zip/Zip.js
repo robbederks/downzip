@@ -1,7 +1,7 @@
 // Based on the implementation specified in: https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
 import WorkerUtils from '../WorkerUtils'
-import Crc32 from 'Crc32'
-import ZipUtils from 'ZipUtils'
+import Crc32 from './Crc32'
+import ZipUtils from './ZipUtils'
 
 const Utils = new WorkerUtils('Zip')
 
@@ -9,13 +9,14 @@ class Zip {
     constructor(zip64){
         // Enable large zip compatibility?
         this.zip64 = zip64
+        Utils.log(`Started zip with zip64: ${this.zip64}`)
 
         // Setup file record
         this.fileRecord = []
         this.finished = false
 
         // Setup byte counter
-        this.byteCounterBig = 0n
+        this.byteCounterBig = BigInt(0)
 
         // Setup output stream
         this.outputStream = new ReadableStream({
@@ -44,6 +45,7 @@ class Zip {
     // API
     startFile = (fileName) => {
         if(!this.finished && (this.fileRecord.length === 0 || (this.fileRecord[this.fileRecord.length - 1].done === true))) {
+            Utils.log(`Start file: ${fileName}`)
             const date = new Date(Date.now())
 
             // Add file to record
@@ -51,7 +53,7 @@ class Zip {
                 ...this.fileRecord,
                 {
                     name: fileName,
-                    sizeBig: 0n,
+                    sizeBig: BigInt(0),
                     crc: new Crc32(),
                     done: false,
                     date,
@@ -74,12 +76,12 @@ class Zip {
                 {data: nameBuffer.length, size: 2},
                 {data: (this.zip64 ? 32 : 0), size: 2},
                 {data: nameBuffer},
-                {data: (this.zip64 ? this.getZip64ExtraField(0n, this.byteCounterBig) : [])}
+                {data: (this.zip64 ? this.getZip64ExtraField(BigInt(0), this.byteCounterBig) : [])}
             ])
 
             // Write header to output stream and add to byte counter
             this.outputController.enqueue(header)
-            this.byteCounterBig += header.length
+            this.byteCounterBig += BigInt(header.length)
         } else {
             Utils.error("Tried adding file while adding other file or while zip has finished")
         }
@@ -89,9 +91,9 @@ class Zip {
         if(this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false) && !this.finished){
             // Write data to output stream, add to CRC and increment the file and global size counters
             this.outputController.enqueue(data)
-            this.byteCounterBig += data.length
+            this.byteCounterBig += BigInt(data.length)
             this.fileRecord[this.fileRecord.length - 1].crc.append(data)
-            this.fileRecord[this.fileRecord.length - 1].sizeBig += data.length
+            this.fileRecord[this.fileRecord.length - 1].sizeBig += BigInt(data.length)
         } else {
             Utils.error('Tried to append file data, but there is no open file!')
         }
@@ -100,13 +102,14 @@ class Zip {
     endFile = () => {
         if(this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false) && !this.finished) {
             const file = this.fileRecord[this.fileRecord.length - 1]
+            Utils.log(`End file: ${file.name}`)
             const dataDescriptor = ZipUtils.createByteArray([
                 {data: file.crc.get(), size: 4},
                 {data: file.sizeBig, size: (this.zip64 ? 8 : 4)},
                 {data: file.sizeBig, size: (this.zip64 ? 8 : 4)}
             ])
             this.outputController.enqueue(dataDescriptor)
-            this.byteCounterBig += dataDescriptor.length
+            this.byteCounterBig += BigInt(dataDescriptor.length)
             this.fileRecord[this.fileRecord.length - 1].done = true
         } else {
             Utils.error('Tried to end file, but there is no open file!')
@@ -115,8 +118,9 @@ class Zip {
 
     finish = () => {
         if(this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === true) && !this.finished){
+            Utils.log(`Finishing zip`)
             // Write central directory headers
-            let centralDirectorySize = 0n
+            let centralDirectorySizeBig = BigInt(0)
             const centralDirectoryStartBig = this.byteCounterBig
             this.fileRecord.forEach((file) => {
                 const {date, crc, sizeBig, name, headerOffsetBig} = file
@@ -143,8 +147,8 @@ class Zip {
                     {data: (this.zip64 ? this.getZip64ExtraField(sizeBig, headerOffsetBig) : [])}
                 ])
                 this.outputController.enqueue(header)
-                this.byteCounterBig += header.length
-                centralDirectorySize += header.length
+                this.byteCounterBig += BigInt(header.length)
+                centralDirectorySizeBig += BigInt(header.length)
             })
 
             if(this.zip64){
@@ -159,11 +163,11 @@ class Zip {
                     {data: 0, size: 4},
                     {data: this.fileRecord.length, size: 8},
                     {data: this.fileRecord.length, size: 8},
-                    {data: centralDirectorySize, size: 8},
+                    {data: centralDirectorySizeBig, size: 8},
                     {data: centralDirectoryStartBig, size: 8}
                 ])
                 this.outputController.enqueue(zip64EndOfCentralDirectoryRecord)
-                this.byteCounterBig += zip64EndOfCentralDirectoryRecord.length
+                this.byteCounterBig += BigInt(zip64EndOfCentralDirectoryRecord.length)
 
                 // Write zip64 end of central directory locator
                 const zip64EndOfCentralDirectoryLocator = ZipUtils.createByteArray([
@@ -173,7 +177,7 @@ class Zip {
                     {data: 1, size: 4}
                 ])
                 this.outputController.enqueue(zip64EndOfCentralDirectoryLocator)
-                this.byteCounterBig += zip64EndOfCentralDirectoryLocator.length
+                this.byteCounterBig += BigInt(zip64EndOfCentralDirectoryLocator.length)
             }
 
             const endOfCentralDirectoryRecord = ZipUtils.createByteArray([
@@ -182,12 +186,13 @@ class Zip {
                 {data: 0, size: 2},
                 {data: (this.zip64 ? 0xFFFF : this.fileRecord.length), size: 2},
                 {data: (this.zip64 ? 0xFFFF : this.fileRecord.length), size: 2},
-                {data: (this.zip64 ? 0xFFFFFFFF : centralDirectorySize), size: 4},
+                {data: (this.zip64 ? 0xFFFFFFFF : centralDirectorySizeBig), size: 4},
                 {data: (this.zip64 ? 0xFFFFFFFF : centralDirectoryStartBig), size: 4},
                 {data: 0, size: 2}
             ])
             this.outputController.enqueue(endOfCentralDirectoryRecord)
-            this.byteCounterBig += endOfCentralDirectoryRecord.length
+            this.outputController.close()
+            this.byteCounterBig += BigInt(endOfCentralDirectoryRecord.length)
 
             this.finished = true
             Utils.log(`Done writing zip file. Wrote ${this.fileRecord.length} files and a total of ${this.byteCounterBig} bytes.`)
@@ -196,3 +201,5 @@ class Zip {
         }
     }
 }
+
+export default Zip

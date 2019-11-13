@@ -14,7 +14,7 @@ class ZipUtils {
 
         let i = 0
         data.forEach((entry) => {
-            if(entry.data.length){
+            if(entry.data.length !== undefined){
                 // Entry data is some kind of buffer / array
                 array.set(entry.data, i)
                 i += entry.data.length
@@ -25,20 +25,21 @@ class ZipUtils {
                         dataView.setInt8(i, parseInt(entry.data))
                         break
                     case 2:
-                        dataView.setInt16(i, parseInt(entry.data, LITTLE_ENDIAN))
+                        dataView.setInt16(i, parseInt(entry.data), LITTLE_ENDIAN)
                         break
                     case 4:
-                        dataView.setInt32(i, parseInt(entry.data, LITTLE_ENDIAN))
+                        dataView.setInt32(i, parseInt(entry.data), LITTLE_ENDIAN)
                         break
                     case 8:
                         dataView.setBigInt64(i, BigInt(entry.data), LITTLE_ENDIAN)
                         break
                     default:
-                        Utils.error(`createByteArray: No handler defined for data size ${entry.size}`)
+                        Utils.error(`createByteArray: No handler defined for data size ${entry.size} of entry data ${JSON.stringify(entry.data)}`)
                 }
                 i += entry.size
             }
         })
+        console.log(array)
         return array
     }
 }
