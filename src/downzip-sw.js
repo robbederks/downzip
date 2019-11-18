@@ -110,7 +110,6 @@ const messageHandlers = {
 }
 self.addEventListener('message', async (event) => {
     const {data, ports} = event
-    console.log(event)
     const handler = messageHandlers[data.command]
     if(handler){
         await handler(data.data, ports)
