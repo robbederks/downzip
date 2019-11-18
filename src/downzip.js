@@ -12,7 +12,7 @@ class DownZip {
             scope: `./${SCOPE}/`
         }).then(result => {
             console.log('[DownZip] Service worker registered successfully:', result)
-            this.worker = result.active
+            this.worker = result.installing || result.active
         }).catch(error => {
             console.error('[DownZip] Service workers not loaded:', error)
         })

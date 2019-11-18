@@ -1,3 +1,5 @@
+const DEBUG = false
+
 class WorkerUtils {
     constructor(name){
         this.name = name
@@ -8,7 +10,7 @@ class WorkerUtils {
     }
 
     log = (message) => {
-        console.log(`[${this.name}] ${message}`)
+        DEBUG && console.log(`[${this.name}] ${message}`)
     }
 }
 

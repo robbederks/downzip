@@ -24,7 +24,6 @@ const initialize = (data, ports) => {
         zip: new Zip(zip64),
         sizeBig: totalSizeBig
     }
-    console.log(zipMap)
 
     // Acknowledge reception
     if(ports.length > 0)
@@ -33,11 +32,13 @@ const initialize = (data, ports) => {
 
 // /////////// EVENT HANDLERS /////////// //
 self.addEventListener('install', () => {
-    Utils.log("Installing worker")
+    Utils.log("Installing worker and skip waiting")
+    skipWaiting()
 })
 
 self.addEventListener('activate', () => {
-    Utils.log("Activating worker")
+    Utils.log("Activating worker and skip waiting")
+    skipWaiting()
 })
 
 self.addEventListener('fetch', async (event) => {
