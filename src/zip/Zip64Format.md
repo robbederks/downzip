@@ -73,6 +73,8 @@ Data descriptor size: `12 or 20 bytes depending on zip64`
 ```
 
 # Central directory header format:
+Central directory header size: `46 bytes + file name length + extra field length`
+```
     SIGNATURE (0x02014B50)
     VERSION MADE BY (2 bytes: PKZip 4.5 added support for ZIP64: 45 = 0x002D)
     VERSION NEEDED TO EXTRACT (2 bytes: PKZip 4.5 added support for ZIP64: 45 = 0x002D)
@@ -115,8 +117,11 @@ Data descriptor size: `12 or 20 bytes depending on zip64`
     FILE NAME
     EXTRA FIELD (see above)
     FILE COMMENT
+```
 
 # ZIP64 End of central directory record
+ZIP64 End of central directory record size: `56 bytes`
+```
     SIGNATURE (0x06064b50)
     SIZE OF THIS RECORD, MINUS THESE 12 BYTES (8 BYTES)
     VERSION MADE BY (2 bytes: PKZip 4.5 added support for ZIP64: 45 = 0x002D)
@@ -128,14 +133,20 @@ Data descriptor size: `12 or 20 bytes depending on zip64`
     SIZE OF CENTRAL DIRECTORY (8 BYTES)
     OFFSET OF START OF CENTRAL DIRECTORY FROM STARTING DISK NUMBER (8 BYTES)
     ZIP64 EXTENSIBLE DATA SECTOR (VARIABLE SIZE, not used in our case?)
+```
 
 # ZIP64 End of central directory locator
+ZIP64 End of central directory locator size: `20 bytes`
+```
     SIGNATURE (0x07064b50)
     NUMBER OF DISK WITH START OF ZIP64 END OF CENTRAL DIRECTORY HEADER (4 BYTES)
     RELATIVE OFFSET OF ZIP64 END OF CENTRAL DIRECTORY RECORD (8 BYTES)
     TOTAL NUMBER OF DISKS (4 BYTES)
+```
 
 # End of central directory record
+ZIP64 End of central directory record size: `22 bytes`
+```
     SIGNATURE (0x06054b50)
     NUMBER OF THIS DISK (2 BYTES)
     NUMBER OF DISK WITH START OF CENTRAL DIRECTORY (2 BYTES)
@@ -145,3 +156,4 @@ Data descriptor size: `12 or 20 bytes depending on zip64`
     OFFSET OF START OF CENTRAL DIRECTORY FROM STARTING DISK NUMBER (4 BYTES)
     FILE COMMENT LENGTH (2 BYTES)
     FILE COMMENT (VARIABLE LENGTH)
+```

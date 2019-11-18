@@ -1,6 +1,7 @@
 import '@babel/polyfill'
 import WorkerUtils from './WorkerUtils'
 import Zip from './zip/Zip'
+import ZipUtils from './zip/ZipUtils'
 const Utils = new WorkerUtils('DownZipServiceWorker')
 
 // /////////// GLOBAL OBJECTS /////////// //
@@ -12,10 +13,9 @@ const initialize = (data, ports) => {
     const {id, files, name} = data
 
     // Decide whether to use zip64
-    // TODO: Estimate header sizes (pretty easy to do!)
-    const totalSizeBig = files.reduce((acc, val) => acc + BigInt(val.size), BigInt(0))
-    Utils.log(`Total file size: ${totalSizeBig}`)
-    const zip64 = (totalSizeBig >= BigInt(0xEFFFFFFF))  // Not up to 0xFFFFFFFF due to added headers and stuff
+    const totalSizeBig = ZipUtils.calculateSize(files)
+    Utils.log(`Total estimated file size: ${totalSizeBig}`)
+    const zip64 = (totalSizeBig >= BigInt('0xFFFFFFFF'))
 
     // Start new Zip object and add to the map
     zipMap[id] = {

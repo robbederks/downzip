@@ -41,6 +41,43 @@ class ZipUtils {
         })
         return array
     }
+
+    calculateSize = (files) => {
+        const localHeaderSizeBig = (file) => BigInt(30 + file.name.length)
+        const dataDescriptorSizeBig = BigInt(12)
+        const centralDirectoryHeaderSizeBig = (file) => BigInt(46 + file.name.length)
+        const endOfCentralDirectorySizeBig = BigInt(22)
+        const zip64ExtraFieldSizeBig = BigInt(32)
+        const zip64DataDescriptorSizeBig = BigInt(20)
+        const zip64EndOfCentralDirectoryRecordSizeBig = BigInt(56)
+        const zip64EndOfCentralDirectoryLocatorSizeBig = BigInt(20)
+
+
+        let totalSizeBig = files.reduce((acc, val) => {
+            return (acc
+                + localHeaderSizeBig(val)
+                + BigInt(val.size)
+                + dataDescriptorSizeBig
+                + centralDirectoryHeaderSizeBig(val)
+            )
+        }, BigInt(0))
+        totalSizeBig += endOfCentralDirectorySizeBig
+
+        if(totalSizeBig >= BigInt("0xFFFFFFFF")){
+            // We have a ZIP64! Add all the data we missed before
+            totalSizeBig = files.reduce((acc, val) => {
+                return (acc
+                    + zip64ExtraFieldSizeBig
+                    + (zip64DataDescriptorSizeBig - dataDescriptorSizeBig)
+                    + zip64ExtraFieldSizeBig
+                )
+            }, totalSizeBig)
+            totalSizeBig += zip64EndOfCentralDirectoryRecordSizeBig
+            totalSizeBig += zip64EndOfCentralDirectoryLocatorSizeBig
+        }
+
+        return totalSizeBig
+    }
 }
 
 const staticZipUtils = new ZipUtils()
