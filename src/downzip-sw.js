@@ -9,7 +9,7 @@ const zipMap = {}
 // ////////// MESSAGE HANDLERS ////////// //
 const initialize = (data, ports) => {
     Utils.log(`Initialize called: ${JSON.stringify(data)}`)
-    const {id, files} = data
+    const {id, files, name} = data
 
     // Decide whether to use zip64
     // TODO: Estimate header sizes (pretty easy to do!)
@@ -20,6 +20,7 @@ const initialize = (data, ports) => {
     // Start new Zip object and add to the map
     zipMap[id] = {
         files,
+        name,
         zip: new Zip(zip64),
         sizeBig: totalSizeBig
     }
@@ -55,12 +56,11 @@ self.addEventListener('fetch', async (event) => {
         }
 
         // Respond with the zip outputStream
-        // TODO: Add parameter for file name
         event.respondWith(new Response(
             zipMap[id].zip.outputStream,
             {headers: new Headers({
                 'Content-Type': 'application/octet-stream; charset=utf-8',
-                'Content-Disposition': 'attachment; filename="attachmenet-bundle.zip"',
+                'Content-Disposition': `attachment; filename="${zipMap[id].name}.zip"`,
                 'Content-Length': zipMap[id].sizeBig  // This is an approximation, does not take into account the headers
             })}
         ))

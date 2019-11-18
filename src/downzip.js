@@ -26,7 +26,7 @@ class DownZip {
     }
 
     // Files array is in the following format: [{name: '', url: ''}, ...]
-    async downzip(id, files){
+    async downzip(id, name, files){
         // Check if worker got created in the constructor
         if(!this.worker){
             console.error("[DownZip] No service worker registered!")
@@ -42,7 +42,8 @@ class DownZip {
             // Init this task in our service worker
             this.sendMessage('INITIALIZE', {
                 id,
-                files
+                files,
+                name
             }, messageChannel.port2)
 
             // Start timeout timer
