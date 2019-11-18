@@ -12,6 +12,7 @@ const initialize = (data, ports) => {
     const {id, files} = data
 
     // Decide whether to use zip64
+    // TODO: Estimate header sizes (pretty easy to do!)
     const totalSizeBig = files.reduce((acc, val) => acc + BigInt(val.size), BigInt(0))
     Utils.log(`Total file size: ${totalSizeBig}`)
     const zip64 = (totalSizeBig >= BigInt(0xEFFFFFFF))  // Not up to 0xFFFFFFFF due to added headers and stuff
@@ -54,6 +55,7 @@ self.addEventListener('fetch', async (event) => {
         }
 
         // Respond with the zip outputStream
+        // TODO: Add parameter for file name
         event.respondWith(new Response(
             zipMap[id].zip.outputStream,
             {headers: new Headers({

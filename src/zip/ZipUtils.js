@@ -39,7 +39,6 @@ class ZipUtils {
                 i += entry.size
             }
         })
-        console.log(array)
         return array
     }
 }

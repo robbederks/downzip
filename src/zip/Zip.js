@@ -159,7 +159,7 @@ class Zip {
                     {data: 44, size: 8},
                     {data: 0x002D, size: 2},
                     {data: 0x002D, size: 2},
-                    {data: 1, size: 4},
+                    {data: 0, size: 4},
                     {data: 0, size: 4},
                     {data: this.fileRecord.length, size: 8},
                     {data: this.fileRecord.length, size: 8},
