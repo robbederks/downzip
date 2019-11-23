@@ -88,31 +88,39 @@ class Zip {
     }
 
     appendData = (data) => {
-        if(this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false) && !this.finished){
-            // Write data to output stream, add to CRC and increment the file and global size counters
-            this.outputController.enqueue(data)
-            this.byteCounterBig += BigInt(data.length)
-            this.fileRecord[this.fileRecord.length - 1].crc.append(data)
-            this.fileRecord[this.fileRecord.length - 1].sizeBig += BigInt(data.length)
-        } else {
-            Utils.error('Tried to append file data, but there is no open file!')
+        try {
+            if (this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false) && !this.finished) {
+                // Write data to output stream, add to CRC and increment the file and global size counters
+                this.outputController.enqueue(data)
+                this.byteCounterBig += BigInt(data.length)
+                this.fileRecord[this.fileRecord.length - 1].crc.append(data)
+                this.fileRecord[this.fileRecord.length - 1].sizeBig += BigInt(data.length)
+            } else {
+                Utils.error('Tried to append file data, but there is no open file!')
+            }
+        } catch (e) {
+            console.error(e)
         }
     }
 
     endFile = () => {
-        if(this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false) && !this.finished) {
-            const file = this.fileRecord[this.fileRecord.length - 1]
-            Utils.log(`End file: ${file.name}`)
-            const dataDescriptor = ZipUtils.createByteArray([
-                {data: file.crc.get(), size: 4},
-                {data: file.sizeBig, size: (this.zip64 ? 8 : 4)},
-                {data: file.sizeBig, size: (this.zip64 ? 8 : 4)}
-            ])
-            this.outputController.enqueue(dataDescriptor)
-            this.byteCounterBig += BigInt(dataDescriptor.length)
-            this.fileRecord[this.fileRecord.length - 1].done = true
-        } else {
-            Utils.error('Tried to end file, but there is no open file!')
+        try {
+            if(this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false) && !this.finished) {
+                const file = this.fileRecord[this.fileRecord.length - 1]
+                Utils.log(`End file: ${file.name}`)
+                const dataDescriptor = ZipUtils.createByteArray([
+                    {data: file.crc.get(), size: 4},
+                    {data: file.sizeBig, size: (this.zip64 ? 8 : 4)},
+                    {data: file.sizeBig, size: (this.zip64 ? 8 : 4)}
+                ])
+                this.outputController.enqueue(dataDescriptor)
+                this.byteCounterBig += BigInt(dataDescriptor.length)
+                this.fileRecord[this.fileRecord.length - 1].done = true
+            } else {
+                Utils.error('Tried to end file, but there is no open file!')
+            }
+        } catch (e) {
+            console.error(e)
         }
     }
 

@@ -30,6 +30,12 @@ const initialize = (data, ports) => {
         ports[0].postMessage({command: 'ACKNOWLEDGE'})
 }
 
+// This message is here to keep the service worker from getting killed while downloading.
+// TODO: Only send tick while actually downloading
+const tick = () => {
+    Utils.log(`Tock`)
+}
+
 // /////////// EVENT HANDLERS /////////// //
 self.addEventListener('install', () => {
     Utils.log("Installing worker and skip waiting")
@@ -39,6 +45,7 @@ self.addEventListener('install', () => {
 self.addEventListener('activate', () => {
     Utils.log("Activating worker and skip waiting")
     skipWaiting()
+    self.clients.claim()
 })
 
 self.addEventListener('fetch', async (event) => {
@@ -48,7 +55,7 @@ self.addEventListener('fetch', async (event) => {
     if(lastPart.includes('download-')) {
         // Get download id
         const id = lastPart.replace('download-', '')
-        Utils.log(`Fetch called for download id: ${id}`)
+        console.log(`Fetch called for download id: ${id}`)
 
         // Check if initialized
         if(!zipMap[id]){
@@ -74,25 +81,31 @@ self.addEventListener('fetch', async (event) => {
             zipMap[id].zip.startFile(file.name)
 
             // Append all the downloaded data
-            await new Promise((resolve, reject) => {
-                fetch(file.downloadUrl).then(response => response.body).then(async (stream) => {
-                    const reader = stream.getReader()
-                    let doneReading = false
-                    while(!doneReading){
-                        const chunk = await reader.read()
-                        const {done, value} = chunk
+            try {
+                await new Promise((resolve, reject) => {
+                    fetch(file.downloadUrl).then(response => response.body).then(async (stream) => {
+                        const reader = stream.getReader()
+                        let doneReading = false
+                        while (!doneReading) {
+                            const chunk = await reader.read()
+                            const {done, value} = chunk
 
-                        if(done) {
-                            // If this stream has finished, resolve and return
-                            resolve()
-                            doneReading = true
-                        } else {
-                            // If not, append data to the zip
-                            zipMap[id].zip.appendData(value)
+                            if (done) {
+                                // If this stream has finished, resolve and return
+                                resolve()
+                                doneReading = true
+                            } else {
+                                // If not, append data to the zip
+                                zipMap[id].zip.appendData(value)
+                            }
                         }
-                    }
-                }).catch((err) => reject(err))
-            })
+                    }).catch((err) => {
+                        reject(err)
+                    })
+                })
+            } catch (e) {
+                Utils.error(`Error while piping data into zip: ${e.toString()}`)
+            }
 
             // End file
             zipMap[id].zip.endFile()
@@ -106,8 +119,14 @@ self.addEventListener('fetch', async (event) => {
     }
 })
 
+self.addEventListener('error', (message, url, lineNo) => {
+    console.log(`Error: ${message} at line number: ${lineNo}. Handling URL ${url}`)
+    return true
+})
+
 const messageHandlers = {
-    'INITIALIZE': initialize
+    'INITIALIZE': initialize,
+    'TICK': tick
 }
 self.addEventListener('message', async (event) => {
     const {data, ports} = event

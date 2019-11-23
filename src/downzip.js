@@ -2,6 +2,7 @@ import registerServiceWorker from 'service-worker-loader!./downzip-sw'
 
 const SCOPE = 'downzip'
 const TIMEOUT_MS = 5000
+const KEEPALIVE_INTERVAL_MS = 5000
 
 class DownZip {
     constructor(){
@@ -16,13 +17,18 @@ class DownZip {
         }).catch(error => {
             console.error('[DownZip] Service workers not loaded:', error)
         })
+
+        // Start keep-alive timer
+        setInterval(async () => {
+            this.sendMessage('TICK')
+        }, KEEPALIVE_INTERVAL_MS)
     }
 
     sendMessage(command, data, port){
         this.worker.postMessage({
             command,
             data
-        }, [port])
+        }, port ? [port] : undefined)
     }
 
     // Files array is in the following format: [{name: '', url: ''}, ...]
