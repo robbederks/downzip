@@ -4,7 +4,7 @@
   "description": "Library to enable client-side code to stream potentially large files into a zipped download",
   "main": "./dist/main.js",
   "scripts": {
-    "test": "echo \"Error: author is too lazy to write tests\" && exit 1",
+    "test": "echo \"Error: author is too lazy to write tests. Please send in pull requests!\" && exit 1",
     "build": "npx webpack --mode=production",
     "build_dev": "npx webpack --mode=development"
   },
