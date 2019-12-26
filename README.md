@@ -1,4 +1,6 @@
 # DownZip
+[![Maintainability](https://api.codeclimate.com/v1/badges/862b0665619d30cd322e/maintainability)](https://codeclimate.com/github/robbederks/downzip/maintainability)[ ![Test Coverage](https://api.codeclimate.com/v1/badges/862b0665619d30cd322e/test_coverage)](https://codeclimate.com/github/robbederks/downzip/test_coverage)
+
 The `package.json` description says it all: "Library to enable client-side code to stream potentially large files into a zipped download"
 
 ## Features
