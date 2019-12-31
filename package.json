@@ -4,7 +4,7 @@
   "description": "Library to enable client-side code to stream potentially large files into a zipped download",
   "main": "./dist/main.js",
   "scripts": {
-    "test": "echo \"Error: author is too lazy to write tests. Please send in pull requests!\" && exit 1",
+    "test": "mocha --require @babel/register --require @babel/polyfill",
     "build": "npx webpack --mode=production",
     "build_dev": "npx webpack --mode=development"
   },
@@ -27,7 +27,9 @@
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/polyfill": "^7.6.0",
     "@babel/preset-env": "^7.6.3",
+    "@babel/register": "^7.7.7",
     "babel-loader": "^8.0.6",
+    "mocha": "^6.2.2",
     "service-worker-loader": "^3.3.1",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.10"
