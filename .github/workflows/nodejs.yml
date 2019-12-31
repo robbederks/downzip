@@ -18,15 +18,11 @@ jobs:
       run: |
         npm ci
         npm run build --if-present
-        npm test
       env:
         CI: true
     - name: tests and coverage
-      run: |
-        npm ci
-        npm run build --if-present
       uses: paambaati/codeclimate-action@v2.3.0
       env:
         CC_TEST_REPORTER_ID: 2bd924d61d2951f67af1454760c32cb8f7eb2d2d47daf3be8aa63d80291cf122
       with:
-        coverageCommand: npm test
+        coverageCommand: npm run test
