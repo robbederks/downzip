@@ -4,7 +4,7 @@
   "description": "Library to enable client-side code to stream potentially large files into a zipped download",
   "main": "./dist/main.js",
   "scripts": {
-    "setup_nyc_folder": "mkdir -p .nyc_output",
+    "setup_nyc_folder": "mkdir -p .nyc_output && chmod -R u+x .",
     "test": "nyc --all --include src/* mocha --require @babel/register --require @babel/polyfill",
     "build": "npx webpack --mode=production",
     "build_dev": "npx webpack --mode=development"
@@ -36,5 +36,7 @@
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.10"
   },
-  "dependencies": {}
+  "dependencies": {
+    "node": "^13.5.0"
+  }
 }
