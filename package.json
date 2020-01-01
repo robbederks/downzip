@@ -5,8 +5,8 @@
   "main": "./dist/main.js",
   "scripts": {
     "setup_nyc_folder": "mkdir -p .nyc_output && chmod -R u+x .",
-    "test_coverage": "nyc --all --include src/* mocha --require @babel/register --require @babel/polyfill --text",
     "test": "mocha --require @babel/register --require @babel/polyfill --text",
+    "test:coverage": "NODE_ENV=nyc babel src --out-dir instrumented-src && nyc npm run test",
     "build": "npx webpack --mode=production",
     "build_dev": "npx webpack --mode=development"
   },
@@ -31,6 +31,7 @@
     "@babel/preset-env": "^7.6.3",
     "@babel/register": "^7.7.7",
     "babel-loader": "^8.0.6",
+    "babel-plugin-istanbul": "^6.0.0",
     "mocha": "^6.2.2",
     "nyc": "^15.0.0",
     "service-worker-loader": "^3.3.1",
