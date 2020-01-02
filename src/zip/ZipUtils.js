@@ -34,7 +34,9 @@ class ZipUtils {
                         dataView.setBigInt64(i, BigInt(entry.data), LITTLE_ENDIAN)
                         break
                     default:
-                        Utils.error(`createByteArray: No handler defined for data size ${entry.size} of entry data ${JSON.stringify(entry.data)}`)
+                        const error = `createByteArray: No handler defined for data size ${entry.size} of entry data ${JSON.stringify(entry.data)}`
+                        Utils.error(error)
+                        throw error
                 }
                 i += entry.size
             }

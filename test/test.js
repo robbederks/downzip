@@ -55,6 +55,9 @@ describe('ZipUtils', () => {
             const result = ZipUtils.createByteArray([{data: new TextEncoder().encode("Test1234")}])
             assert.deepEqual(result, new Uint8Array([84, 101, 115, 116, 49, 50, 51, 52]))
         })
+        it('Should throw an error for a non-defined length', () => {
+            assert.throws(() => ZipUtils.createByteArray([{data: 0x123, size: 3}]))
+        })
         it('Should create a ByteArray for combined data', () => {
             const result = ZipUtils.createByteArray([
                     {data: 0x12, size: 1},
