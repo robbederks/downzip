@@ -42,9 +42,11 @@ class Zip {
         ])
     }
 
+    isWritingFile = () => (this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false))
+
     // API
     startFile = (fileName) => {
-        if(!this.finished && (this.fileRecord.length === 0 || (this.fileRecord[this.fileRecord.length - 1].done === true))) {
+        if(!this.isWritingFile() && !this.finished) {
             Utils.log(`Start file: ${fileName}`)
             const date = new Date(Date.now())
 
@@ -68,8 +70,8 @@ class Zip {
                 {data: 0x002D, size: 2},
                 {data: 0x0808, size: 2},
                 {data: 0x0000, size: 2},
-                {data: ((((date.getHours() << 6) | date.getMinutes()) << 5) | date.getSeconds() / 2), size: 2},
-                {data: (((((date.getFullYear() - 1980) << 4) | (date.getMonth() + 1)) << 5) | date.getDate()), size: 2},
+                {data: ZipUtils.getTimeStruct(date), size: 2},
+                {data: ZipUtils.getDateStruct(date), size: 2},
                 {data: 0x00000000, size: 4},
                 {data: (this.zip64 ? 0xFFFFFFFF : 0x00000000), size: 4},
                 {data: (this.zip64 ? 0xFFFFFFFF : 0x00000000), size: 4},
@@ -89,7 +91,7 @@ class Zip {
 
     appendData = (data) => {
         try {
-            if (this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false) && !this.finished) {
+            if (this.isWritingFile() && !this.finished) {
                 // Write data to output stream, add to CRC and increment the file and global size counters
                 this.outputController.enqueue(data)
                 this.byteCounterBig += BigInt(data.length)
@@ -105,7 +107,7 @@ class Zip {
 
     endFile = () => {
         try {
-            if(this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === false) && !this.finished) {
+            if(this.isWritingFile() && !this.finished) {
                 const file = this.fileRecord[this.fileRecord.length - 1]
                 Utils.log(`End file: ${file.name}`)
                 const dataDescriptor = ZipUtils.createByteArray([
@@ -125,7 +127,7 @@ class Zip {
     }
 
     finish = () => {
-        if(this.fileRecord.length > 0 && (this.fileRecord[this.fileRecord.length - 1].done === true) && !this.finished){
+        if(!this.isWritingFile() && !this.finished){
             Utils.log(`Finishing zip`)
             // Write central directory headers
             let centralDirectorySizeBig = BigInt(0)
@@ -139,8 +141,8 @@ class Zip {
                     {data: 0x002D, size: 2},
                     {data: 0x0808, size: 2},
                     {data: 0x0000, size: 2},
-                    {data: ((((date.getHours() << 6) | date.getMinutes()) << 5) | date.getSeconds() / 2), size: 2},
-                    {data: (((((date.getFullYear() - 1980) << 4) | (date.getMonth() + 1)) << 5) | date.getDate()), size: 2},
+                    {data: ZipUtils.getTimeStruct(date), size: 2},
+                    {data: ZipUtils.getDateStruct(date), size: 2},
                     {data: crc.get(), size: 4},
                     {data: (this.zip64 ? 0xFFFFFFFF : sizeBig), size: 4},
                     {data: (this.zip64 ? 0xFFFFFFFF : sizeBig), size: 4},
