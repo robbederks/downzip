@@ -101,12 +101,12 @@ describe('ZipUtils', () => {
 
     context('ZipStructs', () => {
         it('Should calculate the right time representation', () => {
-            const result = ZipUtils.getTimeStruct(new Date(Date.UTC(1996, 4, 23, 16, 20, 10, 123)))
-            assert.equal(result, 37509)
+            const result = ZipUtils.getTimeStruct(new Date("1996-04-23 16:20:10"))
+            assert.equal(result, 33413)
         })
         it('Should calculate the right date representation', () => {
-            const result = ZipUtils.getDateStruct(new Date(Date.UTC(1996, 4, 23, 16, 20, 10, 123)))
-            assert.equal(result, 8375)
+            const result = ZipUtils.getDateStruct(new Date("1996-04-23 16:20:10"))
+            assert.equal(result, 8343)
         })
     })
 })
