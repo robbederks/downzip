@@ -6,7 +6,7 @@
   "scripts": {
     "setup_nyc_folder": "mkdir -p .nyc_output && chmod -R u+x .",
     "test": "mocha --require @babel/register --require @babel/polyfill --text",
-    "test:coverage": "NODE_ENV=nyc babel src --out-dir instrumented-src && nyc npm run test",
+    "test:coverage": "NODE_ENV=nyc babel src --out-dir instrumented-src && nyc --reporter=lcov npm run test",
     "build": "npx webpack --mode=production",
     "build_dev": "npx webpack --mode=development"
   },
