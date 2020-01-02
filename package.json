@@ -30,6 +30,7 @@
     "@babel/polyfill": "^7.6.0",
     "@babel/preset-env": "^7.6.3",
     "@babel/register": "^7.7.7",
+    "babel-cli": "^6.26.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-istanbul": "^6.0.0",
     "mocha": "^6.2.2",
