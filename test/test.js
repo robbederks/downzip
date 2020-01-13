@@ -1,8 +1,10 @@
 import assert from 'assert'
 import Crc32 from '../src/zip/Crc32'
 import ZipUtils from '../src/zip/ZipUtils'
+import Zip from '../src/zip/Zip'
 import fs from 'fs'
 import path from 'path'
+import jszip from 'jszip'
 
 describe('CRC32', () => {
     it('Should compute the correct CRC32 for an empty 1KB file', () => {
@@ -112,4 +114,91 @@ describe('ZipUtils', () => {
             assert.equal(result, 8343)
         })
     })
+})
+
+describe('Zip', () => {
+    context('Normal zip', () => {
+        let testZip = null
+        const tempZipName = 'temp.zip'
+        step('Begin zip and pipe output', () => {
+            const writeStream = fs.createWriteStream(tempZipName)
+            testZip = new Zip(false)
+            testZip.outputStream.pipe(writeStream)
+        })
+        step('Start file', () => {
+            testZip.startFile('testFile.bin')
+        })
+        step('Stream in file data', async () => {
+            const readBuffer = await fs.promises.readFile(path.join(__dirname, 'testFile.bin'))
+            testZip.appendData(readBuffer)
+        })
+        step('End file', () => {
+            testZip.endFile()
+        })
+        step('End zip', () => {
+            testZip.finish()
+        })
+        step('Check zip contents against input data', async () => {
+            const zipReader = await jszip.loadAsync(fs.readFileSync(tempZipName), {base64: false, checkCRC32: true})
+            assert.ok(zipReader.files['testFile.bin'])
+            assert.deepEqual(await zipReader.file("testFile.bin").async('uint8array'), await fs.promises.readFile(path.join(__dirname, 'testFile.bin')))
+        })
+    })
+
+    context('Small zip64', () => {
+        let testZip = null
+        const tempZipName = 'temp64.zip'
+        step('Begin zip and pipe output', () => {
+            const writeStream = fs.createWriteStream(tempZipName)
+            testZip = new Zip(true)
+            testZip.outputStream.pipe(writeStream)
+        })
+        step('Start file', () => {
+            testZip.startFile('testFile.bin')
+        })
+        step('Stream in file data', async () => {
+            const readBuffer = await fs.promises.readFile(path.join(__dirname, 'testFile.bin'))
+            testZip.appendData(readBuffer)
+        })
+        step('End file', () => {
+            testZip.endFile()
+        })
+        step('End zip', () => {
+            testZip.finish()
+        })
+        step('Check zip contents against input data', async () => {
+            const zipReader = await jszip.loadAsync(fs.readFileSync(tempZipName), {base64: false, checkCRC32: true})
+            assert.ok(zipReader.files['testFile.bin'])
+            assert.deepEqual(await zipReader.file("testFile.bin").async('uint8array'), await fs.promises.readFile(path.join(__dirname, 'testFile.bin')))
+        })
+    })
+
+    context('Big zip64', () => {
+        let testZip = null
+        const tempZipName = 'temp64_big.zip'
+        step('Begin zip and pipe output', () => {
+            const writeStream = fs.createWriteStream(tempZipName)
+            testZip = new Zip(true)
+            testZip.outputStream.pipe(writeStream)
+        })
+        step('Add a lot of files to get above 1GB', async () => {
+            for(let i=0; i<1000; i++){
+                const name = `testFile${i}.bin`
+                testZip.startFile(name)
+                const readBuffer = await fs.promises.readFile(path.join(__dirname, 'testFile.bin'))
+                testZip.appendData(readBuffer)
+                testZip.endFile()
+            }
+        }).timeout(120*1000)
+        step('End zip', () => {
+            testZip.finish()
+        })
+        step('Check zip contents against input data', async () => {
+            const zipReader = await jszip.loadAsync(await fs.promises.readFile(tempZipName), {base64: false, checkCRC32: true})
+            assert.ok(zipReader.files['testFile999.bin'])
+            assert.deepEqual(await zipReader.file("testFile999.bin").async('uint8array'), await fs.promises.readFile(path.join(__dirname, 'testFile.bin')))
+        }).timeout(120*1000)
+    })
+
+    // TODO: Add >4GB tests
 })

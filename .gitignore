@@ -2,3 +2,6 @@ node_modules/
 .nyc_output/
 coverage/
 instrumented-src/
+temp.zip
+temp64.zip
+temp64_big.zip

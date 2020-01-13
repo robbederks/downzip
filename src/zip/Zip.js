@@ -5,6 +5,9 @@ import ZipUtils from './ZipUtils'
 
 const Utils = new WorkerUtils('Zip')
 
+// Add override for using in Node
+const ReadableStream = ReadableStream || require('stream').Readable
+
 class Zip {
     constructor(zip64){
         // Enable large zip compatibility?
@@ -26,8 +29,18 @@ class Zip {
             },
             cancel: () => {
                 Utils.error('OutputStream has been canceled!')
-            }
+            },
+            read: () => {}
         })
+    }
+
+    // To also work with the node version of readable stream (for testing)
+    enqueue = (data) => {
+        this.outputController ? this.outputController.enqueue(data) : this.outputStream.push(data)
+    }
+
+    close = () => {
+        this.outputController ? this.outputController.close() : this.outputStream.destroy()
     }
 
     // Generators
@@ -82,7 +95,7 @@ class Zip {
             ])
 
             // Write header to output stream and add to byte counter
-            this.outputController.enqueue(header)
+            this.enqueue(header)
             this.byteCounterBig += BigInt(header.length)
         } else {
             Utils.error("Tried adding file while adding other file or while zip has finished")
@@ -93,7 +106,7 @@ class Zip {
         try {
             if (this.isWritingFile() && !this.finished) {
                 // Write data to output stream, add to CRC and increment the file and global size counters
-                this.outputController.enqueue(data)
+                this.enqueue(data)
                 this.byteCounterBig += BigInt(data.length)
                 this.fileRecord[this.fileRecord.length - 1].crc.append(data)
                 this.fileRecord[this.fileRecord.length - 1].sizeBig += BigInt(data.length)
@@ -115,7 +128,7 @@ class Zip {
                     {data: file.sizeBig, size: (this.zip64 ? 8 : 4)},
                     {data: file.sizeBig, size: (this.zip64 ? 8 : 4)}
                 ])
-                this.outputController.enqueue(dataDescriptor)
+                this.enqueue(dataDescriptor)
                 this.byteCounterBig += BigInt(dataDescriptor.length)
                 this.fileRecord[this.fileRecord.length - 1].done = true
             } else {
@@ -156,7 +169,7 @@ class Zip {
                     {data: nameBuffer},
                     {data: (this.zip64 ? this.getZip64ExtraField(sizeBig, headerOffsetBig) : [])}
                 ])
-                this.outputController.enqueue(header)
+                this.enqueue(header)
                 this.byteCounterBig += BigInt(header.length)
                 centralDirectorySizeBig += BigInt(header.length)
             })
@@ -176,7 +189,7 @@ class Zip {
                     {data: centralDirectorySizeBig, size: 8},
                     {data: centralDirectoryStartBig, size: 8}
                 ])
-                this.outputController.enqueue(zip64EndOfCentralDirectoryRecord)
+                this.enqueue(zip64EndOfCentralDirectoryRecord)
                 this.byteCounterBig += BigInt(zip64EndOfCentralDirectoryRecord.length)
 
                 // Write zip64 end of central directory locator
@@ -186,7 +199,7 @@ class Zip {
                     {data: zip64EndOfCentralDirectoryRecordStartBig, size: 8},
                     {data: 1, size: 4}
                 ])
-                this.outputController.enqueue(zip64EndOfCentralDirectoryLocator)
+                this.enqueue(zip64EndOfCentralDirectoryLocator)
                 this.byteCounterBig += BigInt(zip64EndOfCentralDirectoryLocator.length)
             }
 
@@ -200,8 +213,8 @@ class Zip {
                 {data: (this.zip64 ? 0xFFFFFFFF : centralDirectoryStartBig), size: 4},
                 {data: 0, size: 2}
             ])
-            this.outputController.enqueue(endOfCentralDirectoryRecord)
-            this.outputController.close()
+            this.enqueue(endOfCentralDirectoryRecord)
+            this.close()
             this.byteCounterBig += BigInt(endOfCentralDirectoryRecord.length)
 
             this.finished = true

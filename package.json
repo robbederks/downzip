@@ -1,11 +1,11 @@
 {
   "name": "downzip",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Library to enable client-side code to stream potentially large files into a zipped download",
   "main": "./dist/main.js",
   "scripts": {
     "setup_nyc_folder": "mkdir -p .nyc_output && chmod -R u+x .",
-    "test": "mocha --require @babel/register --require @babel/polyfill --text",
+    "test": "mocha --require @babel/register --require @babel/polyfill --require mocha-steps --text",
     "test:coverage": "NODE_ENV=nyc babel src --out-dir instrumented-src && nyc --reporter=lcov --reporter=text --all --include=src/* npm run test",
     "build": "npx webpack --mode=production",
     "build_dev": "npx webpack --mode=development"
@@ -34,12 +34,14 @@
     "babel-loader": "^8.0.6",
     "babel-plugin-istanbul": "^6.0.0",
     "mocha": "^6.2.2",
+    "mocha-steps": "^1.3.0",
     "nyc": "^15.0.0",
     "service-worker-loader": "^3.3.1",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
+    "jszip": "^3.2.2",
     "node": "^13.5.0"
   }
 }
