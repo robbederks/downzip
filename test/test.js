@@ -117,7 +117,7 @@ describe('ZipUtils', () => {
 })
 
 describe('Zip', () => {
-    context('Normal zip', () => {
+    context('Normal zip', async () => {
         let testZip = null
         const tempZipName = 'temp.zip'
         step('Begin zip and pipe output', () => {
@@ -145,7 +145,7 @@ describe('Zip', () => {
         })
     })
 
-    context('Small zip64', () => {
+    context('Small zip64', async () => {
         let testZip = null
         const tempZipName = 'temp64.zip'
         step('Begin zip and pipe output', () => {
@@ -173,7 +173,7 @@ describe('Zip', () => {
         })
     })
 
-    context('Big zip64', () => {
+    context('Big zip64', async () => {
         let testZip = null
         const tempZipName = 'temp64_big.zip'
         step('Begin zip and pipe output', () => {
