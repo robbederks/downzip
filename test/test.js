@@ -120,7 +120,7 @@ describe('ZipUtils', () => {
 describe('Zip', () => {
     context('Normal zip', async () => {
         let testZip = null
-        const tempZipName = `temp-${crypto.randomBytes(3).toString('hex')}.zip`
+        const tempZipName = `/tmp/temp-${crypto.randomBytes(3).toString('hex')}.zip`
         step('Begin zip and pipe output', () => {
             const writeStream = fs.createWriteStream(tempZipName)
             testZip = new Zip(false)
@@ -148,7 +148,7 @@ describe('Zip', () => {
 
     context('Small zip64', async () => {
         let testZip = null
-        const tempZipName = `temp64-${crypto.randomBytes(3).toString('hex')}.zip`
+        const tempZipName = `/tmp/temp64-${crypto.randomBytes(3).toString('hex')}.zip`
         step('Begin zip and pipe output', () => {
             const writeStream = fs.createWriteStream(tempZipName)
             testZip = new Zip(true)
@@ -176,7 +176,7 @@ describe('Zip', () => {
 
     context('Big zip64', async () => {
         let testZip = null
-        const tempZipName = `temp64-big-${crypto.randomBytes(3).toString('hex')}.zip`
+        const tempZipName = `/tmp/temp64-big-${crypto.randomBytes(3).toString('hex')}.zip`
         step('Begin zip and pipe output', () => {
             const writeStream = fs.createWriteStream(tempZipName)
             testZip = new Zip(true)
