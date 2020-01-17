@@ -5,6 +5,7 @@ import Zip from '../src/zip/Zip'
 import fs from 'fs'
 import path from 'path'
 import jszip from 'jszip'
+import crypto from 'crypto'
 
 describe('CRC32', () => {
     it('Should compute the correct CRC32 for an empty 1KB file', () => {
@@ -119,7 +120,7 @@ describe('ZipUtils', () => {
 describe('Zip', () => {
     context('Normal zip', async () => {
         let testZip = null
-        const tempZipName = 'temp.zip'
+        const tempZipName = `temp-${crypto.randomBytes(3).toString('hex')}.zip`
         step('Begin zip and pipe output', () => {
             const writeStream = fs.createWriteStream(tempZipName)
             testZip = new Zip(false)
@@ -147,7 +148,7 @@ describe('Zip', () => {
 
     context('Small zip64', async () => {
         let testZip = null
-        const tempZipName = 'temp64.zip'
+        const tempZipName = `temp64-${crypto.randomBytes(3).toString('hex')}.zip`
         step('Begin zip and pipe output', () => {
             const writeStream = fs.createWriteStream(tempZipName)
             testZip = new Zip(true)
@@ -175,7 +176,7 @@ describe('Zip', () => {
 
     context('Big zip64', async () => {
         let testZip = null
-        const tempZipName = 'temp64_big.zip'
+        const tempZipName = `temp64-big-${crypto.randomBytes(3).toString('hex')}.zip`
         step('Begin zip and pipe output', () => {
             const writeStream = fs.createWriteStream(tempZipName)
             testZip = new Zip(true)
