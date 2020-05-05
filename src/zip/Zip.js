@@ -114,7 +114,7 @@ class Zip {
                 Utils.error('Tried to append file data, but there is no open file!')
             }
         } catch (e) {
-            console.error(e)
+            Utils.error(e)
         }
     }
 
@@ -135,7 +135,7 @@ class Zip {
                 Utils.error('Tried to end file, but there is no open file!')
             }
         } catch (e) {
-            console.error(e)
+            Utils.error(e)
         }
     }
 

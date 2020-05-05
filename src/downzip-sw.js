@@ -55,7 +55,7 @@ self.addEventListener('fetch', async (event) => {
     if(lastPart.includes('download-')) {
         // Get download id
         const id = lastPart.replace('download-', '')
-        console.log(`Fetch called for download id: ${id}`)
+        Utils.log(`Fetch called for download id: ${id}`)
 
         // Check if initialized
         if(!zipMap[id]){
@@ -120,7 +120,7 @@ self.addEventListener('fetch', async (event) => {
 })
 
 self.addEventListener('error', (message, url, lineNo) => {
-    console.log(`Error: ${message} at line number: ${lineNo}. Handling URL ${url}`)
+    Utils.log(`Error: ${message} at line number: ${lineNo}. Handling URL ${url}`)
     return true
 })
 

@@ -1,4 +1,6 @@
 import registerServiceWorker from 'service-worker-loader!./downzip-sw'
+import WorkerUtils from './WorkerUtils'
+const Utils = new WorkerUtils('DownZip-Main')
 
 const SCOPE = 'downzip'
 const TIMEOUT_MS = 5000
@@ -12,10 +14,10 @@ class DownZip {
         registerServiceWorker({
             scope: `./${SCOPE}/`
         }).then(result => {
-            console.log('[DownZip] Service worker registered successfully:', result)
+            Utils.log('[DownZip] Service worker registered successfully:', result)
             this.worker = result.installing || result.active
         }).catch(error => {
-            console.error('[DownZip] Service workers not loaded:', error)
+            Utils.error('[DownZip] Service workers not loaded:', error)
         })
 
         // Start keep-alive timer
@@ -35,7 +37,7 @@ class DownZip {
     async downzip(id, name, files){
         // Check if worker got created in the constructor
         if(!this.worker){
-            console.error("[DownZip] No service worker registered!")
+            Utils.error("[DownZip] No service worker registered!")
             return
         }
 
