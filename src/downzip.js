@@ -33,7 +33,7 @@ class DownZip {
         }, port ? [port] : undefined)
     }
 
-    // Files array is in the following format: [{name: '', url: ''}, ...]
+    // Files array is in the following format: [{name: '', downloadUrl: '', size: 0}, ...]
     async downzip(id, name, files){
         // Check if worker got created in the constructor
         if(!this.worker){
