@@ -5,9 +5,6 @@ import ZipUtils from './ZipUtils'
 
 const Utils = new WorkerUtils('Zip')
 
-// Add override for using in Node
-const ReadableStream = ReadableStream || require('stream').Readable
-
 class Zip {
     constructor(zip64){
         // Enable large zip compatibility?
