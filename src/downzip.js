@@ -9,9 +9,11 @@ const KEEPALIVE_INTERVAL_MS = 5000
 class DownZip {
     constructor(){
         this.worker = null
+    }
 
+    async register() {
         // Register service worker and let it intercept our scope
-        registerServiceWorker({
+        await registerServiceWorker({
             scope: `./${SCOPE}/`
         }).then(result => {
             Utils.log('[DownZip] Service worker registered successfully:', result)
@@ -25,6 +27,7 @@ class DownZip {
             this.sendMessage('TICK')
         }, KEEPALIVE_INTERVAL_MS)
     }
+    
 
     sendMessage(command, data, port){
         this.worker.postMessage({
