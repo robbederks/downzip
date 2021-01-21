@@ -11,9 +11,13 @@ class DownZip {
         this.worker = null
     }
 
-    async register() {
+    async register(options = {}) {
+        // Allow passing mapScriptUrl to service-worker-loader
+        const defaultMapScriptUrl = scriptUrl => scriptUrl
+        const mapScriptUrl = options.mapScriptUrl || defaultMapScriptUrl
+
         // Register service worker and let it intercept our scope
-        await registerServiceWorker({
+        await registerServiceWorker(mapScriptUrl, {
             scope: `./${SCOPE}/`
         }).then(result => {
             Utils.log('[DownZip] Service worker registered successfully:', result)
