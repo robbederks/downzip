@@ -9,9 +9,15 @@ const KEEPALIVE_INTERVAL_MS = 5000
 class DownZip {
     constructor(){
         this.worker = null
+    }
+
+    async register(options = {}) {
+        // Allow passing mapScriptUrl to service-worker-loader
+        const defaultMapScriptUrl = scriptUrl => scriptUrl
+        const mapScriptUrl = options.mapScriptUrl || defaultMapScriptUrl
 
         // Register service worker and let it intercept our scope
-        registerServiceWorker({
+        await registerServiceWorker(mapScriptUrl, {
             scope: `./${SCOPE}/`
         }).then(result => {
             Utils.log('[DownZip] Service worker registered successfully:', result)
@@ -25,6 +31,7 @@ class DownZip {
             this.sendMessage('TICK')
         }, KEEPALIVE_INTERVAL_MS)
     }
+    
 
     sendMessage(command, data, port){
         this.worker.postMessage({
