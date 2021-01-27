@@ -28,6 +28,7 @@ import DownZip from 'downzip'
 
 // Setup downzip object
 const downZip = new DownZip()
+await downZip.register()
 
 // Initialize download
 const downloadId = "aaaabbbb"
@@ -54,6 +55,18 @@ const downloadUrl = await downZip.downzip(
 ```
 // Start download when user clicks the link
 <a href={downloadUrl}>Click to start downloading!</a>
+```
+
+## service-worker-loader options
+Can pass `mapScriptUrl` function to the `register` method. That function gets used by 
+service-worker-loader. [docs](https://github.com/mohsen1/service-worker-loader#registerserviceworkermapscripturl-scripturl-string--string-options-registrationoptions-promiseserviceworkerregistration)
+
+```js
+    const mapScriptUrl = scriptUrl => scriptUrl.replace('localhost', "127.0.0.1")
+
+   // Setup downzip object
+    const downZip = new DownZip()
+    await downZip.register({ mapScriptUrl })
 ```
 
 ## TODO
