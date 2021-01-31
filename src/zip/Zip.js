@@ -3,6 +3,9 @@ import WorkerUtils from '../WorkerUtils'
 import Crc32 from './Crc32'
 import ZipUtils from './ZipUtils'
 
+// Polyfill ReadableStream if not in browser
+let ReadableStreamLocal = (typeof ReadableStream == "undefined") ? require('stream').Readable : ReadableStream
+
 const Utils = new WorkerUtils('Zip')
 
 class Zip {
@@ -19,7 +22,7 @@ class Zip {
         this.byteCounterBig = BigInt(0)
 
         // Setup output stream
-        this.outputStream = new ReadableStream({
+        this.outputStream = new ReadableStreamLocal({
             start: (controller) => {
                 Utils.log('OutputStream has started!')
                 this.outputController = controller
