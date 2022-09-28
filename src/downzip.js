@@ -7,8 +7,9 @@ const TIMEOUT_MS = 5000
 const KEEPALIVE_INTERVAL_MS = 5000
 
 class DownZip {
-    constructor(){
+    constructor({scope}){
         this.worker = null
+        this.scope = scope || SCOPE
     }
 
     async register(options = {}) {
@@ -18,7 +19,7 @@ class DownZip {
 
         // Register service worker and let it intercept our scope
         await registerServiceWorker(mapScriptUrl, {
-            scope: `./${SCOPE}/`
+            scope: `./${this.scope}/`
         }).then(result => {
             Utils.log('[DownZip] Service worker registered successfully:', result)
             this.worker = result.installing || result.active
@@ -51,7 +52,7 @@ class DownZip {
         return new Promise(((resolve, reject) => {
             // Return download URL on acknowledge via messageChannel
             const messageChannel = new MessageChannel()
-            messageChannel.port1.addEventListener('message', () => resolve(`${SCOPE}/download-${id}`))
+            messageChannel.port1.addEventListener('message', () => resolve(`${this.scope}/download-${id}`))
             messageChannel.port1.start()
 
             // Init this task in our service worker
