@@ -1,3 +1,4 @@
+import '@babel/polyfill'
 import WorkerUtils from './WorkerUtils'
 import Zip from './zip/Zip'
 import ZipUtils from './zip/ZipUtils'
