@@ -20,8 +20,6 @@ jobs:
         npm run build --if-present
       env:
         CI: true
-    - name: create nyc folder
-      run: npm run setup_nyc_folder
     - name: tests and coverage
       uses: paambaati/codeclimate-action@v2.3.0
       env:
