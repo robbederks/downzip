@@ -35,13 +35,13 @@ const downloadId = "aaaabbbb"
 const zipFileName = "downzip-file"
 const files = [
     {
-        name: 'picture1.jpg' 
-        downloadUrl: 'http://your-download-url.com/picture1.jpg'
+        name: 'picture1.jpg', 
+        downloadUrl: 'http://your-download-url.com/picture1.jpg',
         size: 1234      // In bytes
     }, 
     {
-        name: 'picture2.jpg' 
-        downloadUrl: 'http://your-download-url.com/picture2.jpg'
+        name: 'picture2.jpg', 
+        downloadUrl: 'http://your-download-url.com/picture2.jpg',
         size: 4567      // In bytes
     }
 ]
