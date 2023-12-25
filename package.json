@@ -38,7 +38,7 @@
     "node": "^13.14.0",
     "nyc": "^15.1.0",
     "service-worker-loader": "^4.0.2",
-    "webpack": "^4.44.2",
+    "webpack": "^5.74.0",
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
